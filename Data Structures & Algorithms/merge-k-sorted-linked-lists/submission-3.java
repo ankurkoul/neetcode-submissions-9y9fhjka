@@ -1,0 +1,77 @@
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+
+class Solution {
+
+    public ListNode mergeKLists(ListNode[] lists) {
+        Queue<ListNode> minHeap=new PriorityQueue<>((a,b)->a.val-b.val);
+        for(ListNode list: lists){
+            if(list!=null){
+                //minheap throw error for null
+                minHeap.offer(list);
+            }
+            
+        }
+
+        ListNode dummy=new ListNode();
+        ListNode cur=dummy;
+        while(!minHeap.isEmpty()){
+            ListNode top=minHeap.poll();
+            cur.next=top;
+            cur=top;
+            //since we removed top node from minHeap 
+            // but we want other nodes to be considered hence
+            // we add next node
+            ListNode next=top.next;
+            if(next!=null){
+                minHeap.offer(next);
+            }
+        }
+        return dummy.next;
+    }
+    public ListNode mergeKListsUsingDivideConcur(ListNode[] lists) {
+        if(lists==null || lists.length==0)return null;
+
+        // divide list of size k into 2 half, until single elmenent is left
+        // list1 : first and middle
+        // list2 : middle+1 and last
+        // continue until not divide --> we will have logK levels
+        // and then merge thats n nodes -> O(N)
+        return divide(lists,0,lists.length-1);//logK
+    }
+    private ListNode divide(ListNode[]lists, int l, int r){
+        if(l==r)return lists[l];
+        int mid=l+(r-l)/2;
+        ListNode left=divide(lists,l,mid);  
+        ListNode right=divide(lists,mid+1,r);
+        return merge(left,right); //O(N)
+    }
+
+    private ListNode merge(ListNode left, ListNode right ){
+        ListNode dummy=new ListNode();
+        ListNode cur=dummy;
+         while(left!=null && right!=null){
+            if(left.val<right.val){
+                cur.next=left;
+                left=left.next;
+            }else{
+                cur.next=right;
+                right=right.next;
+            }
+            cur=cur.next;
+        }
+        if(left!=null){
+            cur.next=left;
+        } if(right!=null)
+             cur.next=right;
+        return dummy.next;
+    }
+}
